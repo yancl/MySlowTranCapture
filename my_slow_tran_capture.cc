@@ -245,14 +245,14 @@ int outbound(struct tcphdr *tcp, struct timeval tv,
     char *str;
     if (server_code == 0) //OK
     {
-      char *msg= "GOT_OK";
+      const char *msg= "GOT_OK";
       int str_len= strlen(msg);
       str= (char*)malloc(str_len+1);
-      sprintf(str, msg);
+      sprintf(str, "%s", msg);
       str[str_len]= '\0';
     }else if (server_code == 255) //ERROR
     {
-      char *msg_head= "GOT_ERR:";
+      const char *msg_head= "GOT_ERR:";
       int head_len= strlen(msg_head);
       int protocol_head_len;
       if(old_protocol)
@@ -261,15 +261,15 @@ int outbound(struct tcphdr *tcp, struct timeval tv,
         protocol_head_len= 9;
       uint64_t errstr_len= plen - protocol_head_len;
       str= (char*)malloc(head_len+errstr_len+1);
-      sprintf(str, msg_head);
+      sprintf(str, "%s", msg_head);
       memcpy(str+head_len, p+protocol_head_len, errstr_len);
       str[head_len+errstr_len]= '\0';
     }else
     {
-      char *msg= "GOT_RES";
+      const char *msg= "GOT_RES";
       int str_len= strlen(msg);
       str= (char*)malloc(str_len+1);
-      sprintf(str, msg);
+      sprintf(str, "%s", msg);
       str[str_len]= '\0';
     }
     queries_t *t= (queries_t*)malloc(sizeof(queries_t));
@@ -326,7 +326,7 @@ void parse_query(uint64_t key, unsigned char *p, uint query_length,
     it= trans.find(key);
     if (it != trans.end())
     {
-      char *print_str= "TRAN_END BY ";
+      const char *print_str= "TRAN_END BY ";
       int print_strlen= strlen(print_str);
       queries_t* queries= it->second;
       queries_t *t2= (queries_t*)malloc(sizeof(queries_t));
@@ -382,11 +382,11 @@ void parse_quit(uint64_t key, struct timeval tv, struct in_addr raddr,
   it= trans.find(key);
   if (it != trans.end())
   {
-    char *quit_str= "QUIT";
+    const char *quit_str= "QUIT";
     int quit_strlen= strlen(quit_str);
     queries_t *t= (queries_t*)malloc(sizeof(queries_t));
     char* query= (char*)malloc(quit_strlen+1);
-    sprintf(query, quit_str);
+    sprintf(query, "%s", quit_str);
     t->tv= tv;
     t->query= query;
     t->direction= INBOUND;
@@ -603,8 +603,8 @@ int main(int argc, char** argv)
   if (get_addresses() != 0)
     return -1;
 
-  if (!interface || !strlen(interface))
-    sprintf(interface, "any");
+  if (!strlen(interface))
+    sprintf(interface, "%s", "any");
 
   printf("Monitoring %s interface..\n", interface);
   pcap= pcap_open_live(interface, CAPTURE_LENGTH, 0, READ_TIMEOUT, errbuf);
@@ -617,7 +617,7 @@ int main(int argc, char** argv)
   /* Capture only TCP port 3306*/
   if (strlen(filter) == 0)
   {
-    sprintf(filter, "tcp port 3306");
+    sprintf(filter, "%s", "tcp port 3306");
     printf("Listening port 3306..\n");
   }else
   {
